@@ -31,29 +31,39 @@ var server = http.createServer(function(request, response){
 
 
 
-  console.log('HTTP 路径为\n' + path)
-  if(path == '/'){
-    response.setHeader('Content-Type', 'text/html; charset=utf-8')
-    response.write('<!DOCTYPE>\n<html>' +
-    '<head><link rel="stylesheet" href="/style.css">' + 
-    '</head><body>' +
-    '<h1>你好</h1>' +
-    '<script src="/main.js"></script>' +
-    '</body></html>')
+  if(path === '/'){
+    var string = fs.readFileSync('./index.html','utf8')
+    var amount = fs.readFileSync('./db','utf8')   //金额100
+    string = string.replace('&&&amount&&&',amount)
+    response.setHeader('Content-Type','text/html;charset=utf-8')
+    response.write(string)
     response.end()
-  }else if(path == '/style.css'){
-    response.setHeader('Content-Type', 'text/css; charset=utf-8')
-    response.write('body{background-color: #ddd;}h1{color: red;}')
+  }else if(path === '/style.css'){
+    var string = fs.readFileSync('./style.css','utf8')
+    response.setHeader('Content-Type','text/css')
+    response.write(string)
     response.end()
-  }else if(path == '/main.js'){
-    response.setHeader('Content-Type', 'text/js; charset=utf-8')
-    response.write('alert("这是JS执行的")')
+  }else if(path === '/main.js'){
+    var string = fs.readFileSync('./main.js','utf8')
+    response.setHeader('Content-Type','application/javascript')
+    response.write(string)
     response.end()
+  }else if(path==='/pay'){
+    var amount = fs.readFileSync('./db','utf8')  //100
+    var newAmount = amount - 1
+    fs.writeFileSync('./db',newAmount)
+    response.setHeader('Content-Type','application/javascript')
+    response.statusCode = 200
+    response.write(`${query.callback}(undefined,'success')`)
+    response.end()
+  
   }else{
-    response.statusCode = 404
+    response.stateCode = 404
+    response.setHeader('Content-Type','text/html;charset=utf-8')
+    response.write('找不到对应的路径,需要修改index.js')
     response.end()
   }
-
+  
 
 
 
